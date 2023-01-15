@@ -6,16 +6,23 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Iterator;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import tp3.Agence;
+import tp3.CritereAnnee;
+import tp3.CritereMarque;
+import tp3.CriterePrix;
+import tp3.InterCritere;
 import tp3.Voiture;
 
-public class Interface_Voiture extends JPanel implements ActionListener,MouseListener{
+public class Interface_Voiture extends JPanel implements ActionListener,MouseListener,KeyListener{
 
 	private static final long serialVersionUID = 1L;
 	public Agence agence;
@@ -92,6 +99,8 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 		inputs[6]=new JTextField(20);
 		inputs[7]=new JTextField(20);
 		boutons[3]=new JButton("Chercher");
+		boutons[3].addActionListener(this);
+		boutons[3].addMouseListener(this);
 		boutons[3].setSize(20, 2);
 		boutons[3].setBackground(Color.DARK_GRAY);
 		boutons[3].setForeground(Color.white);
@@ -108,6 +117,13 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 		panelTab=new JPanel();
 		scrollpane=new JScrollPane();
 		panelTab.add(scrollpane);
+		
+		//input 3,4,5,7:l'utilisateur a le droit d entrer juste les nombres
+		inputs[3].addKeyListener(this);
+		inputs[4].addKeyListener(this);
+		inputs[5].addKeyListener(this);
+		inputs[7].addKeyListener(this);
+
 		DefaultTableModel model = new DefaultTableModel(colums, 0);
 		table=new JTable(model);
 		table.addMouseListener(this);
@@ -133,7 +149,7 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 	public void actionPerformed(ActionEvent e) {
 		DefaultTableModel modele=(DefaultTableModel) table.getModel();
 		JButton b=(JButton)e.getSource();
-		if(b.getLabel().equals("Ajouter")) {
+		if(b.getText().equals("Ajouter")) {
 		boolean ajout=true;
 		for(int i=0;i<5;i++)
 		{
@@ -160,12 +176,12 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 			agence.ajouterVoiture(v);
 			modele.addRow(new Object[] {v.getMatricule(),v.getMarque(),v.getModele(),v.getAnneeProd(),v.getPrix()}) ;
 			agence.afficherVoiture();
-			viderInputs();
+			viderInputs(0,5);
 			 
 			}
 		}
 	}
-		else	 if(b.getLabel().equals("Supprimer"))
+		else	 if(b.getText().equals("Supprimer"))
 		{
 
 			int ligne=table.getSelectedRow();
@@ -175,13 +191,13 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 				System.out.println(o);
 				agence.supprimerVoiture(o);
 				modele.removeRow(ligne);
-				viderInputs();
+				viderInputs(0,5);
 				
 			}
 			else JOptionPane.showMessageDialog(this, "Selectionner une voiture!", "no selection", JOptionPane.ERROR_MESSAGE);
 
 		}
-		else if(b.getLabel().equals("Modifier"))
+		else if(b.getText().equals("Modifier"))
 		{
 			int ligne=table.getSelectedRow();
 			if(ligne!=-1) 
@@ -197,21 +213,75 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 				agence.getVoiture(inputs[0].getText()).setPrix(Integer.parseInt(inputs[4].getText()));
 				
 				
-				viderInputs();
+				viderInputs(0,5);
 				
 			}
 			else JOptionPane.showMessageDialog(this, "Selectionner une voiture!", "no selection", JOptionPane.ERROR_MESSAGE);
 
 		}
+		else if(b.getText().equals("Chercher"))
+		{
+			boolean verif=true;
+			 
+			 for(int i=5;i<8;i++)
+			 {
+				 if(!(inputs[i].getText().equals(""))) verif=false;
+			 }
+			 if(!verif)
+			 {
+				 InterCritere criteres=new InterCritere();
+				 
+				 //critere Annee
+				 if(!(inputs[5].getText().equals("")))
+				 {
+					 System.out.println("******prix****"+Integer.parseInt(inputs[5].getText()));
+
+					 CritereAnnee c=new CritereAnnee(Integer.parseInt(inputs[5].getText()));
+					 criteres.addCritere(c);
+				 }
+				 //critere marque
+				 if(!(inputs[6].getText().equals("")))
+				 {
+					 System.out.println("*******merque******"+inputs[6].getText());
+					 CritereMarque c=new CritereMarque(inputs[6].getText());
+					 criteres.addCritere(c);
+				 }
+				 //critere Prix
+				 if(!(inputs[7].getText().equals("")))
+				 {
+					 System.out.println("******prix****"+Integer.parseInt(inputs[7].getText()));
+					 CriterePrix c=new CriterePrix(Integer.parseInt(inputs[7].getText()));
+					 criteres.addCritere(c);
+				 }
+				 Iterator<Voiture> iter=agence.selectionne(criteres);
+				 SupprimerTable();
+				 Voiture v;
+				 while(iter.hasNext())
+				 {
+					v=iter.next();
+					 modele.addRow(new Object[] {v.getMatricule(),v.getMarque(),v.getModele(),v.getAnneeProd(),v.getPrix()}) ;
+					//viderInputs(5,8);
+				 }
+				 
+			 }
+			 else JOptionPane.showMessageDialog(this, "Remplir au moins une critere !", "no selection", JOptionPane.ERROR_MESSAGE);
+		}
+		
 	}
 
-	private void viderInputs() {
-		for(int i=0;i<5;i++) inputs[i].setText("");
-		inputs[0].requestFocus();//cursor
+	private void viderInputs(int a,int b) {
+		for(int i=a;i<b;i++) inputs[i].setText("");
+		inputs[a].requestFocus();//cursor
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {	
+	public void mouseClicked(MouseEvent e) {
+			if (e.getClickCount() == 2)
+			{
+				SupprimerTable();
+				remplirTableau();
+			}
+		
 		DefaultTableModel modele=(DefaultTableModel) table.getModel();
 		int ligne=table.getSelectedRow();
 		if(ligne!=-1)
@@ -237,6 +307,39 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 	@Override
 	public void mouseExited(MouseEvent e) {}
 	
+	public void remplirTableau()
+	{
+		Iterator<Voiture> iter=agence.getVoitures();
+		Voiture v;
+		while(iter.hasNext())
+		{
+			DefaultTableModel modele=(DefaultTableModel) table.getModel();
+			v=iter.next();
+			 modele.addRow(new Object[] {v.getMatricule(),v.getMarque(),v.getModele(),v.getAnneeProd(),v.getPrix()}) ;
+
+		}
+	}
+	public void SupprimerTable()
+	{
+		DefaultTableModel modele = (DefaultTableModel) table.getModel();
+		int rowCount = modele.getRowCount();
+		//Remove rows one by one from the end of the table
+		for (int i = rowCount - 1; i >= 0; i--) {
+		    modele.removeRow(i);
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		char c=e.getKeyChar();
+		if(!Character.isDigit(c)) e.consume();
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {}
+
+	@Override
+	public void keyReleased(KeyEvent e) {}
 	
 	
 }

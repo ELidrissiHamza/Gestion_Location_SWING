@@ -2,6 +2,7 @@ package tp3;
 
 
 	import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 	import java.util.Iterator;
@@ -304,5 +305,16 @@ import java.util.List;
 
 			} while (key!='0');
 		}
+//		public Enumeration<Voiture> getAuteurs() {
+//			return (Enumeration<Voiture>) this.voitures;
+//		}
+		public Iterator<Voiture> getVoitures() {
+			ArrayList<Voiture> tmp = new ArrayList<>();
+			for (Voiture voiture : voitures) {
+					tmp.add(voiture);
+			
+		}
+			return tmp.iterator();
+	}
 	}
 
