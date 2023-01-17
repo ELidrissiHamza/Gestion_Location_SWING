@@ -1,5 +1,4 @@
 package tp3;
-
 import java.util.ArrayList;
 import java.util.List;
 public class InterCritere  implements Critere{
@@ -17,7 +16,6 @@ public class InterCritere  implements Critere{
 	{
 		lesCriteres.clear();
 	}
-
 	@Override
 	public boolean estSatisfaitPar(Voiture v) {
 		for(Critere crit : lesCriteres)

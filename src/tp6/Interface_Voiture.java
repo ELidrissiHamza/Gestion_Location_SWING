@@ -2,13 +2,11 @@ package tp6;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
+
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
+
 import java.util.Iterator;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -33,9 +31,9 @@ public class Interface_Voiture extends JPanel {
 	private JScrollPane scrollpane;
 	private JTable table;
 	String[] colums= {"Matricule","Marque","Modele","Annee","Prix"};
-	public Interface_Voiture()
+	public Interface_Voiture(Agence agence)
 	{
-		agence=new Agence();
+		this.agence=agence;
 		//JFrame f=new JFrame("Gestion Des Voitures");
 		//f.setResizable(false);
 		//f.setLocation(150, 10);
@@ -43,7 +41,7 @@ public class Interface_Voiture extends JPanel {
 		 //Container content = f.getContentPane();
 		// content.setLayout(new BorderLayout());
 		panelAjout=new JPanel(new GridLayout(5,2,10,10));
-		panelAjout.setBackground(Color.LIGHT_GRAY);
+		panelAjout.setBackground(NosCouleur.COLOR1);
 		inputs=new JTextField[8];
 		for(int i=0;i<5;i++)
 			inputs[i]=new JTextField(20);
@@ -72,17 +70,17 @@ public class Interface_Voiture extends JPanel {
 		boutons[1]=new JButton("Supprimer");
 		boutons[2]=new JButton("Modifier");
 		panelBtns.add(boutons[0],BorderLayout.NORTH);
-		boutons[0].setBackground(Color.DARK_GRAY);
+		boutons[0].setBackground(NosCouleur.COLOR2);
 		boutons[0].setForeground(Color.white);
 		panelBtns.add(boutons[1],BorderLayout.CENTER);
-		boutons[1].setBackground(Color.DARK_GRAY);
+		boutons[1].setBackground(NosCouleur.COLOR2);
 		boutons[1].setForeground(Color.white);
 		panelBtns.add(boutons[2],BorderLayout.SOUTH);
-		panelBtns.setBackground(Color.LIGHT_GRAY);
-		boutons[2].setBackground(Color.DARK_GRAY);
+		panelBtns.setBackground(NosCouleur.COLOR1);
+		boutons[2].setBackground(NosCouleur.COLOR2);
 		boutons[2].setForeground(Color.white);
 		panelSearsh=new JPanel(new GridLayout(5,2,5,5));
-		panelSearsh.setBackground(Color.LIGHT_GRAY);
+		panelSearsh.setBackground(NosCouleur.COLOR1);
 
 		labels[5]=new JLabel("   ");
 		labels[6]=new JLabel("     			             Filtrage ");
@@ -94,7 +92,7 @@ public class Interface_Voiture extends JPanel {
 		inputs[7]=new JTextField(20);
 		boutons[3]=new JButton("Chercher");
 		boutons[3].setSize(20, 2);
-		boutons[3].setBackground(Color.DARK_GRAY);
+		boutons[3].setBackground(NosCouleur.COLOR2);
 		boutons[3].setForeground(Color.white);
 		panelSearsh.add(labels[5]);
 		panelSearsh.add(labels[6]);
@@ -109,6 +107,8 @@ public class Interface_Voiture extends JPanel {
 		panelTab=new JPanel();
 		scrollpane=new JScrollPane();
 		panelTab.add(scrollpane);
+		scrollpane.setBackground(NosCouleur.COLOR2);
+		panelTab.setBackground(NosCouleur.COLOR2);
 		scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollpane.setSize(500, 100);
@@ -124,20 +124,19 @@ public class Interface_Voiture extends JPanel {
 		table.setDefaultRenderer(Object.class, (TableCellRenderer) new DefaultTableCellRenderer() {
 		    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		        final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		        c.setBackground(row % 2 == 0 ? Color.LIGHT_GRAY : Color.WHITE);
+		        c.setBackground(row % 2 == 0 ? NosCouleur.COLOR1 :NosCouleur.COLOR2);
 
 		        return c;
 		    }
 		});
-		JTableHeader tableHeader = table.getTableHeader();
-		tableHeader.setBackground(Color.DARK_GRAY);
-		tableHeader.setForeground(Color.WHITE);
+		table.getTableHeader().setDefaultRenderer(new MyHeaderRenderer());
+
 		//remove borders/////////////////
 		table.setIntercellSpacing(new Dimension(0, 0));
         table.setFont(new Font("",Font.ITALIC,13));
         table.setShowGrid(false);
         table.setRowHeight(30);
-        this.setBackground(Color.LIGHT_GRAY);
+        this.setBackground(NosCouleur.COLOR1);
 		this.add(panelAjout,BorderLayout.EAST);
 		this.add(panelBtns,BorderLayout.CENTER);
 		this.add(panelSearsh,BorderLayout.WEST);
@@ -249,33 +248,44 @@ public class Interface_Voiture extends JPanel {
 		}
 	}
 	public void recupererVoitures() {
-		try {
-			// On cree un flux
-			DataInputStream dis = new DataInputStream(new FileInputStream("donnees.txt"));
-			String chaine;
-			try {
-				String matricule;
-				String[] ch;
+		
 				DefaultTableModel modelee=(DefaultTableModel) getTable().getModel();
-
-				for (int i = 0; i < 6; i++) {
-					matricule = dis.readLine();
-					
-					 ch = matricule.split(" ");
-					
-					this.agence.ajouterVoiture(new Voiture(ch[1], ch[2], Integer.parseInt(ch[3]), Integer.parseInt(ch[4]), ch[0]));
-					modelee.addRow(new Object[] {ch[0], ch[1],ch[2], Integer.parseInt(ch[3]), Integer.parseInt(ch[4])}) ;
-
+				Iterator<Voiture> iter=agence.getVoitures();
+				while(iter.hasNext()) {
+					Voiture v=iter.next();
+					modelee.addRow(new Object[] {v.getMatricule(),
+							v.getMarque(),v.getModele(),v.getAnneeProd(), v.getPrix()}) ;
 				}
-
-			} finally {
-				dis.close();
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+				
 		
 	}
+	public void ColorerTable(JTable table,int[] i)
+
+	{
+
+	table.setDefaultRenderer(Object.class, (TableCellRenderer) new DefaultTableCellRenderer() {
+
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+	final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+	c.setBackground(row % 2 == 0 ? NosCouleur.COLOR1: NosCouleur.COLOR2);
+
+	for(int j=0;j<i.length;j++)
+
+	if(row==i[j]) c.setBackground(NosCouleur.COLOR4);
+
+	return c;
+
+	}
+
+	});
+	 table.setFillsViewportHeight(true);
+     table.setBackground(NosCouleur.COLOR1);
+
+	}
+
+	
+	
 	
 }
