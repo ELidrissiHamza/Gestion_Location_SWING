@@ -10,21 +10,23 @@ import javax.swing.JTabbedPane;
 import tp3.*;
 
 public class InterfacePrincipale extends JFrame{
-private ControlerVoitures CV;
-private InterfaceLocation interfaceLocation;
-private JTabbedPane tablePane;
-private Agence agence;
+public ControlerVoitures CV;
+public InterfaceLocation interfaceLocation;
+public JTabbedPane tablePane;
+public Agence agence;
+public interfaceAccueil ia;
 public InterfacePrincipale()
 {
 	
 	tablePane=new JTabbedPane();
 	 this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 	agence =new Agence();
 	recupererAgence();
 	CV=new ControlerVoitures(agence);
 	interfaceLocation=new InterfaceLocation(agence, CV);
 	CV.interfaceVoitures.agence.affichVoituresLouees();
+	ia=new interfaceAccueil(this);
+	tablePane.add("Accueil",ia);
 	tablePane.add("Gestion des Voitures",CV.interfaceVoitures);
 	tablePane.add("Gestion des Locations",interfaceLocation);
 	CV.colorerVoitureLouees();
