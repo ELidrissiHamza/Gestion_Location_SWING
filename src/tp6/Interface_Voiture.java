@@ -1,28 +1,25 @@
 package tp6;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Iterator;
-
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 
 import tp3.Agence;
-import tp3.CritereAnnee;
-import tp3.CritereMarque;
-import tp3.CriterePrix;
-import tp3.InterCritere;
 import tp3.Voiture;
 
-public class Interface_Voiture extends JPanel implements ActionListener,MouseListener,KeyListener{
+public class Interface_Voiture extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	public Agence agence;
@@ -39,13 +36,12 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 	public Interface_Voiture()
 	{
 		agence=new Agence();
-		JFrame f=new JFrame("Gestion location");
-		f.setResizable(false);
-		f.setLocation(150, 100);
-		 f.setSize(300,300);
-		 f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		 Container content = f.getContentPane();
-		 content.setLayout(new BorderLayout());
+		//JFrame f=new JFrame("Gestion Des Voitures");
+		//f.setResizable(false);
+		//f.setLocation(150, 10);
+		 //f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 //Container content = f.getContentPane();
+		// content.setLayout(new BorderLayout());
 		panelAjout=new JPanel(new GridLayout(5,2,10,10));
 		panelAjout.setBackground(Color.LIGHT_GRAY);
 		inputs=new JTextField[8];
@@ -73,11 +69,8 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 		
 		boutons=new JButton[4];
 		boutons[0]=new JButton("Ajouter");
-		boutons[0].addActionListener(this);
 		boutons[1]=new JButton("Supprimer");
-		boutons[1].addActionListener(this);
 		boutons[2]=new JButton("Modifier");
-		boutons[2].addActionListener(this);
 		panelBtns.add(boutons[0],BorderLayout.NORTH);
 		boutons[0].setBackground(Color.DARK_GRAY);
 		boutons[0].setForeground(Color.white);
@@ -85,6 +78,7 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 		boutons[1].setBackground(Color.DARK_GRAY);
 		boutons[1].setForeground(Color.white);
 		panelBtns.add(boutons[2],BorderLayout.SOUTH);
+		panelBtns.setBackground(Color.LIGHT_GRAY);
 		boutons[2].setBackground(Color.DARK_GRAY);
 		boutons[2].setForeground(Color.white);
 		panelSearsh=new JPanel(new GridLayout(5,2,5,5));
@@ -99,8 +93,6 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 		inputs[6]=new JTextField(20);
 		inputs[7]=new JTextField(20);
 		boutons[3]=new JButton("Chercher");
-		boutons[3].addActionListener(this);
-		boutons[3].addMouseListener(this);
 		boutons[3].setSize(20, 2);
 		boutons[3].setBackground(Color.DARK_GRAY);
 		boutons[3].setForeground(Color.white);
@@ -117,196 +109,124 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 		panelTab=new JPanel();
 		scrollpane=new JScrollPane();
 		panelTab.add(scrollpane);
-		
+		scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollpane.setSize(500, 100);
 		//input 3,4,5,7:l'utilisateur a le droit d entrer juste les nombres
-		inputs[3].addKeyListener(this);
-		inputs[4].addKeyListener(this);
-		inputs[5].addKeyListener(this);
-		inputs[7].addKeyListener(this);
-
+		
+		scrollpane.getViewport().setPreferredSize(new Dimension(800,400));
 		DefaultTableModel model = new DefaultTableModel(colums, 0);
 		table=new JTable(model);
-		table.addMouseListener(this);
-		table.setSize(800,500); 
+				
 		scrollpane.setViewportView(table);
 		//panelTab.add(table);
+		//colorer les rows/////////////////
+		table.setDefaultRenderer(Object.class, (TableCellRenderer) new DefaultTableCellRenderer() {
+		    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		        final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		        c.setBackground(row % 2 == 0 ? Color.LIGHT_GRAY : Color.WHITE);
+
+		        return c;
+		    }
+		});
+		JTableHeader tableHeader = table.getTableHeader();
+		tableHeader.setBackground(Color.DARK_GRAY);
+		tableHeader.setForeground(Color.WHITE);
+		//remove borders/////////////////
+		table.setIntercellSpacing(new Dimension(0, 0));
+        table.setFont(new Font("",Font.ITALIC,13));
+        table.setShowGrid(false);
+        table.setRowHeight(30);
+        this.setBackground(Color.LIGHT_GRAY);
 		this.add(panelAjout,BorderLayout.EAST);
 		this.add(panelBtns,BorderLayout.CENTER);
 		this.add(panelSearsh,BorderLayout.WEST);
 		this.add(panelTab,BorderLayout.SOUTH);
-		content.add(this, BorderLayout.CENTER);
+		//content.add(this, BorderLayout.CENTER);
 		//f.pack();
-		f.setSize(900, 400);
-		f.setVisible(true);
+		//f.setSize(900, 650);
+		//f.setVisible(true);
 		
 	}
 	
-	public static void main(String[] args) {
-		Interface_Voiture iv =new Interface_Voiture();
+	public JPanel getPanelAjout() {
+		return panelAjout;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		DefaultTableModel modele=(DefaultTableModel) table.getModel();
-		JButton b=(JButton)e.getSource();
-		if(b.getText().equals("Ajouter")) {
-		boolean ajout=true;
-		for(int i=0;i<5;i++)
-		{
-			if(inputs[i].getText().equals(""))
-			{
-				JOptionPane.showMessageDialog(this, "Remplisser tous les champs!", "Champ vide", JOptionPane.ERROR_MESSAGE);
-				ajout=false;
-				break;
-			}
-			
-		}
-		
-		if(ajout)
-		{
-			Voiture v=new Voiture(inputs[1].getText(),inputs[2].getText(),Integer.parseInt(inputs[3].getText()),
-					Integer.parseInt(inputs[4].getText()),inputs[0].getText()	);
-			if(agence.containsV(v.getMatricule()))
-			{
-				JOptionPane.showMessageDialog(this, "Cette voiture existe!", "Voiture existe", JOptionPane.ERROR_MESSAGE);
-				 inputs[0].requestFocus();//cursor
-
-			}
-			else {
-			agence.ajouterVoiture(v);
-			modele.addRow(new Object[] {v.getMatricule(),v.getMarque(),v.getModele(),v.getAnneeProd(),v.getPrix()}) ;
-			agence.afficherVoiture();
-			viderInputs(0,5);
-			 
-			}
-		}
-	}
-		else	 if(b.getText().equals("Supprimer"))
-		{
-
-			int ligne=table.getSelectedRow();
-			if(ligne!=-1) 
-			{
-				String o= (String) table.getValueAt(ligne,0);
-				System.out.println(o);
-				agence.supprimerVoiture(o);
-				modele.removeRow(ligne);
-				viderInputs(0,5);
-				
-			}
-			else JOptionPane.showMessageDialog(this, "Selectionner une voiture!", "no selection", JOptionPane.ERROR_MESSAGE);
-
-		}
-		else if(b.getText().equals("Modifier"))
-		{
-			int ligne=table.getSelectedRow();
-			if(ligne!=-1) 
-			{
-				String o= (String) table.getValueAt(ligne,0);
-				System.out.println(o);
-				for(int i=0;i<5;i++)
-				modele.setValueAt(inputs[i].getText(), ligne, i);
-				agence.getVoiture(o).setMatricule(inputs[0].getText());
-				agence.getVoiture(inputs[0].getText()).setMarque(inputs[1].getText());
-				agence.getVoiture(inputs[0].getText()).setModele(inputs[2].getText());
-				agence.getVoiture(inputs[0].getText()).setAnneeProd(Integer.parseInt(inputs[3].getText()));
-				agence.getVoiture(inputs[0].getText()).setPrix(Integer.parseInt(inputs[4].getText()));
-				
-				
-				viderInputs(0,5);
-				
-			}
-			else JOptionPane.showMessageDialog(this, "Selectionner une voiture!", "no selection", JOptionPane.ERROR_MESSAGE);
-
-		}
-		else if(b.getText().equals("Chercher"))
-		{
-			boolean verif=true;
-			 
-			 for(int i=5;i<8;i++)
-			 {
-				 if(!(inputs[i].getText().equals(""))) verif=false;
-			 }
-			 if(!verif)
-			 {
-				 InterCritere criteres=new InterCritere();
-				 
-				 //critere Annee
-				 if(!(inputs[5].getText().equals("")))
-				 {
-					 System.out.println("******prix****"+Integer.parseInt(inputs[5].getText()));
-
-					 CritereAnnee c=new CritereAnnee(Integer.parseInt(inputs[5].getText()));
-					 criteres.addCritere(c);
-				 }
-				 //critere marque
-				 if(!(inputs[6].getText().equals("")))
-				 {
-					 System.out.println("*******merque******"+inputs[6].getText());
-					 CritereMarque c=new CritereMarque(inputs[6].getText());
-					 criteres.addCritere(c);
-				 }
-				 //critere Prix
-				 if(!(inputs[7].getText().equals("")))
-				 {
-					 System.out.println("******prix****"+Integer.parseInt(inputs[7].getText()));
-					 CriterePrix c=new CriterePrix(Integer.parseInt(inputs[7].getText()));
-					 criteres.addCritere(c);
-				 }
-				 Iterator<Voiture> iter=agence.selectionne(criteres);
-				 SupprimerTable();
-				 Voiture v;
-				 while(iter.hasNext())
-				 {
-					v=iter.next();
-					 modele.addRow(new Object[] {v.getMatricule(),v.getMarque(),v.getModele(),v.getAnneeProd(),v.getPrix()}) ;
-					//viderInputs(5,8);
-				 }
-				 
-			 }
-			 else JOptionPane.showMessageDialog(this, "Remplir au moins une critere !", "no selection", JOptionPane.ERROR_MESSAGE);
-		}
-		
+	public void setPanelAjout(JPanel panelAjout) {
+		this.panelAjout = panelAjout;
 	}
 
-	private void viderInputs(int a,int b) {
+	public JPanel getPanelBtns() {
+		return panelBtns;
+	}
+
+	public void setPanelBtns(JPanel panelBtns) {
+		this.panelBtns = panelBtns;
+	}
+
+	public JPanel getPanelSearsh() {
+		return panelSearsh;
+	}
+
+	public void setPanelSearsh(JPanel panelSearsh) {
+		this.panelSearsh = panelSearsh;
+	}
+
+	public JPanel getPanelTab() {
+		return panelTab;
+	}
+
+	public void setPanelTab(JPanel panelTab) {
+		this.panelTab = panelTab;
+	}
+
+	public JTextField[] getInputs() {
+		return inputs;
+	}
+
+	public void setInputs(JTextField[] inputs) {
+		this.inputs = inputs;
+	}
+
+	public JButton[] getBoutons() {
+		return boutons;
+	}
+
+	public void setBoutons(JButton[] boutons) {
+		this.boutons = boutons;
+	}
+
+	public JLabel[] getLabels() {
+		return labels;
+	}
+
+	public void setLabels(JLabel[] labels) {
+		this.labels = labels;
+	}
+
+	public JScrollPane getScrollpane() {
+		return scrollpane;
+	}
+
+	public void setScrollpane(JScrollPane scrollpane) {
+		this.scrollpane = scrollpane;
+	}
+
+	public JTable getTable() {
+		return table;
+	}
+
+	public void setTable(JTable table) {
+		this.table = table;
+	}
+
+	public void viderInputs(int a,int b) {
 		for(int i=a;i<b;i++) inputs[i].setText("");
 		inputs[a].requestFocus();//cursor
 	}
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
-			if (e.getClickCount() == 2)
-			{
-				SupprimerTable();
-				remplirTableau();
-			}
-		
-		DefaultTableModel modele=(DefaultTableModel) table.getModel();
-		int ligne=table.getSelectedRow();
-		if(ligne!=-1)
-		{
-			String o= (String) table.getValueAt(ligne,0);
-			inputs[0].setText(agence.getVoiture(o).getMatricule());
-			inputs[1].setText(agence.getVoiture(o).getMarque());
-			inputs[2].setText(agence.getVoiture(o).getModele());
-			inputs[3].setText(Integer.toString(agence.getVoiture(o).getAnneeProd()));
-			inputs[4].setText(Integer.toString(agence.getVoiture(o).getPrix()));
-		}
-	}
 
-	@Override
-	public void mousePressed(MouseEvent e) {}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {}
-
-	@Override
-	public void mouseExited(MouseEvent e) {}
-	
 	public void remplirTableau()
 	{
 		Iterator<Voiture> iter=agence.getVoitures();
@@ -328,18 +248,34 @@ public class Interface_Voiture extends JPanel implements ActionListener,MouseLis
 		    modele.removeRow(i);
 		}
 	}
+	public void recupererVoitures() {
+		try {
+			// On cree un flux
+			DataInputStream dis = new DataInputStream(new FileInputStream("donnees.txt"));
+			String chaine;
+			try {
+				String matricule;
+				String[] ch;
+				DefaultTableModel modelee=(DefaultTableModel) getTable().getModel();
 
-	@Override
-	public void keyTyped(KeyEvent e) {
-		char c=e.getKeyChar();
-		if(!Character.isDigit(c)) e.consume();
+				for (int i = 0; i < 6; i++) {
+					matricule = dis.readLine();
+					
+					 ch = matricule.split(" ");
+					
+					this.agence.ajouterVoiture(new Voiture(ch[1], ch[2], Integer.parseInt(ch[3]), Integer.parseInt(ch[4]), ch[0]));
+					modelee.addRow(new Object[] {ch[0], ch[1],ch[2], Integer.parseInt(ch[3]), Integer.parseInt(ch[4])}) ;
+
+				}
+
+			} finally {
+				dis.close();
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {}
-
-	@Override
-	public void keyReleased(KeyEvent e) {}
-	
 	
 }
